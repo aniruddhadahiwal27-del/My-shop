@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS STORE — Fashion · Tech · Kicks</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --card: #161616;
+    --border: #222;
+    --text: #f0ede8;
+    --muted: #666;
+    --clothes: #e8c84a;
+    --gadgets: #4af0c8;
+    --sneakers: #f04a7e;
+    --white: #fff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(10,10,10,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, var(--clothes), var(--gadgets), var(--sneakers));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+  }
+
+  .nav-links button {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav-links button:hover,
+  .nav-links button.active {
+    color: var(--text);
+    border-color: var(--text);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .nav-links button[data-cat="clothes"].active { border-color: var(--clothes); color: var(--clothes); }
+  .nav-links button[data-cat="gadgets"].active { border-color: var(--gadgets); color: var(--gadgets); }
+  .nav-links button[data-cat="sneakers"].active { border-color: var(--sneakers); color: var(--sneakers); }
+
+  .cart-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cart-btn:hover { opacity: 0.85; }
+  .cart-count {
+    background: var(--sneakers);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 48px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .hero-card {
+    position: relative;
+    height: 320px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: transform 0.3s, border-color 0.3s;
+  }
+
+  .hero-card:hover { transform: translateY(-6px); }
+
+  .hero-card.clothes { background: linear-gradient(135deg, #1a1508 0%, #2d2510 50%, #1a1508 100%); }
+  .hero-card.clothes:hover { border-color: var(--clothes); }
+
+  .hero-card.gadgets { background: linear-gradient(135deg, #081a16 0%, #0d2d28 50%, #081a16 100%); }
+  .hero-card.gadgets:hover { border-color: var(--gadgets); }
+
+  .hero-card.sneakers { background: linear-gradient(135deg, #1a0810 0%, #2d1020 50%, #1a0810 100%); }
+  .hero-card.sneakers:hover { border-color: var(--sneakers); }
+
+  .hero-card-emoji {
+    font-size: 5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    filter: drop-shadow(0 0 40px rgba(255,255,255,0.1));
+    transition: transform 0.3s;
+  }
+
+  .hero-card:hover .hero-card-emoji {
+    transform: translate(-50%, -65%) scale(1.1);
+  }
+
+  .hero-card-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 24px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  }
+
+  .hero-card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+
+  .hero-card.clothes .hero-card-title { color: var(--clothes); }
+  .hero-card.gadgets .hero-card-title { color: var(--gadgets); }
+  .hero-card.sneakers .hero-card-title { color: var(--sneakers); }
+
+  .hero-card-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .hero-card-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 4px 10px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .hero-card.clothes .hero-card-badge { background: var(--clothes); color: #000; }
+  .hero-card.gadgets .hero-card-badge { background: var(--gadgets); color: #000; }
+  .hero-card.sneakers .hero-card-badge { background: var(--sneakers); color: #fff; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    padding: 48px 48px 32px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+
+  .section-title span { font-size: 1rem; font-family: 'Space Mono', monospace; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+  .section-title.clothes-title span, .section-title.clothes-title { color: var(--clothes); }
+  .section-title.gadgets-title span, .section-title.gadgets-title { color: var(--gadgets); }
+  .section-title.sneakers-title span, .section-title.sneakers-title { color: var(--sneakers); }
+
+  .section-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── PRODUCT GRID ── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 0 48px 64px;
+  }
+
+  .product-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .product-card:nth-child(1) { animation-delay: 0.05s; }
+  .product-card:nth-child(2) { animation-delay: 0.1s; }
+  .product-card:nth-child(3) { animation-delay: 0.15s; }
+  .product-card:nth-child(4) { animation-delay: 0.2s; }
+  .product-card:nth-child(5) { animation-delay: 0.25s; }
+  .product-card:nth-child(6) { animation-delay: 0.3s; }
+  .product-card:nth-child(7) { animation-delay: 0.35s; }
+  .product-card:nth-child(8) { animation-delay: 0.4s; }
+
+  .clothes-section .product-card:hover { border-color: var(--clothes); box-shadow: 0 8px 30px rgba(232,200,74,0.08); transform: translateY(-4px); }
+  .gadgets-section .product-card:hover { border-color: var(--gadgets); box-shadow: 0 8px 30px rgba(74,240,200,0.08); transform: translateY(-4px); }
+  .sneakers-section .product-card:hover { border-color: var(--sneakers); box-shadow: 0 8px 30px rgba(240,74,126,0.08); transform: translateY(-4px); }
+
+  .product-img {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .clothes-section .product-img { background: linear-gradient(135deg, #1a1508, #2a2010); }
+  .gadgets-section .product-img { background: linear-gradient(135deg, #081a14, #0a2520); }
+  .sneakers-section .product-img { background: linear-gradient(135deg, #180810, #241020); }
+
+  .product-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    padding: 3px 8px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .tag-new { background: #4af0c8; color: #000; }
+  .tag-hot { background: #f04a7e; color: #fff; }
+  .tag-sale { background: #e8c84a; color: #000; }
+  .tag-limited { background: #8b5cf6; color: #fff; }
+
+  .product-info {
+    padding: 16px;
+  }
+
+  .product-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .product-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  .product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .product-price {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .clothes-section .product-price { color: var(--clothes); }
+  .gadgets-section .product-price { color: var(--gadgets); }
+  .sneakers-section .product-price { color: var(--sneakers); }
+
+  .product-old-price {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-decoration: line-through;
+    margin-left: 6px;
+  }
+
+  .add-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    padding: 8px 14px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+
+  .clothes-section .add-btn { background: var(--clothes); color: #000; }
+  .gadgets-section .add-btn { background: var(--gadgets); color: #000; }
+  .sneakers-section .add-btn { background: var(--sneakers); color: #fff; }
+
+  .add-btn:hover { opacity: 0.85; transform: scale(0.97); }
+  .add-btn.added { background: #333 !important; color: var(--muted) !important; }
+
+  /* ── SECTION VISIBILITY ── */
+  .section-block { display: none; }
+  .section-block.visible { display: block; }
+
+  /* ── ALL VIEW ── */
+  .all-view { display: block; }
+  .all-view.hidden { display: none; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 48px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, var(--clothes), var(--gadgets), var(--sneakers));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .footer-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 22px;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    color: var(--text);
+    z-index: 1000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .products-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 800px) {
+    nav { padding: 14px 20px; }
+    .hero { grid-template-columns: 1fr; padding: 32px 20px; }
+    .products-grid { grid-template-columns: repeat(2, 1fr); padding: 0 20px 48px; }
+    .section-header { padding: 32px 20px 24px; }
+    .section-title { font-size: 2.5rem; }
+    footer { padding: 28px 20px; flex-direction: column; gap: 12px; text-align: center; }
+  }
+
+  @media (max-width: 500px) {
+    .nav-links { display: none; }
+    .products-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">NEXUS</div>
+  <ul class="nav-links">
+    <li><button data-cat="all" class="active" onclick="showCategory('all', this)">ALL</button></li>
+    <li><button data-cat="clothes" onclick="showCategory('clothes', this)">CLOTHES</button></li>
+    <li><button data-cat="gadgets" onclick="showCategory('gadgets', this)">GADGETS</button></li>
+    <li><button data-cat="sneakers" onclick="showCategory('sneakers', this)">SNEAKERS</button></li>
+  </ul>
+  <button class="cart-btn" onclick="showCart()">🛒 CART <span class="cart-count" id="cartCount">0</span></button>
+</nav>
+
+<!-- HERO CARDS -->
+<section class="hero all-view" id="heroSection">
+  <div class="hero-card clothes" onclick="showCategory('clothes', null)">
+    <div class="hero-card-emoji">👕</div>
+    <span class="hero-card-badge">12 items</span>
+    <div class="hero-card-label">
+      <div class="hero-card-title">CLOTHES</div>
+      <div class="hero-card-sub">STREETWEAR · CASUAL · LUXURY</div>
+    </div>
+  </div>
+  <div class="hero-card gadgets" onclick="showCategory('gadgets', null)">
+    <div class="hero-card-emoji">📱</div>
+    <span class="hero-card-badge">12 items</span>
+    <div class="hero-card-label">
+      <div class="hero-card-title">GADGETS</div>
+      <div class="hero-card-sub">TECH · AUDIO · WEARABLES</div>
+    </div>
+  </div>
+  <div class="hero-card sneakers" onclick="showCategory('sneakers', null)">
+    <div class="hero-card-emoji">👟</div>
+    <span class="hero-card-badge">12 items</span>
+    <div class="hero-card-label">
+      <div class="hero-card-title">SNEAKERS</div>
+      <div class="hero-card-sub">RUNNING · LIFESTYLE · COLLAB</div>
+    </div>
+  </div>
+</section>
+
+<!-- ALL VIEW -->
+<div class="all-view" id="allView">
+
+  <!-- CLOTHES -->
+  <div class="section-header">
+    <div>
+      <div class="section-title clothes-title"><span>// 01 COLLECTION</span>CLOTHES</div>
+    </div>
+    <div class="section-count">12 PRODUCTS</div>
+  </div>
+  <div class="products-grid clothes-section" id="clothesGridAll"></div>
+  <div class="divider"></div>
+
+  <!-- GADGETS -->
+  <div class="section-header">
+    <div>
+      <div class="section-title gadgets-title"><span>// 02 COLLECTION</span>GADGETS</div>
+    </div>
+    <div class="section-count">12 PRODUCTS</div>
+  </div>
+  <div class="products-grid gadgets-section" id="gadgetsGridAll"></div>
+  <div class="divider"></div>
+
+  <!-- SNEAKERS -->
+  <div class="section-header">
+    <div>
+      <div class="section-title sneakers-title"><span>// 03 COLLECTION</span>SNEAKERS</div>
+    </div>
+    <div class="section-count">12 PRODUCTS</div>
+  </div>
+  <div class="products-grid sneakers-section" id="sneakersGridAll"></div>
+
+</div>
+
+<!-- FILTERED VIEWS -->
+<div class="section-block" id="clothesView">
+  <div class="section-header">
+    <div><div class="section-title clothes-title"><span>// BROWSE CATEGORY</span>CLOTHES</div></div>
+    <div class="section-count">12 PRODUCTS</div>
+  </div>
+  <div class="products-grid clothes-section" id="clothesGridSingle"></div>
+</div>
+
+<div class="section-block" id="gadgetsView">
+  <div class="section-header">
+    <div><div class="section-title gadgets-title"><span>// BROWSE CATEGORY</span>GADGETS</div></div>
+    <div class="section-count">12 PRODUCTS</div>
+  </div>
+  <div class="products-grid gadgets-section" id="gadgetsGridSingle"></div>
+</div>
+
+<div class="section-block" id="sneakersView">
+  <div class="section-header">
+    <div><div class="section-title sneakers-title"><span>// BROWSE CATEGORY</span>SNEAKERS</div></div>
+    <div class="section-count">12 PRODUCTS</div>
+  </div>
+  <div class="products-grid sneakers-section" id="sneakersGridSingle"></div>
+</div>
+
+<footer>
+  <div class="footer-logo">NEXUS</div>
+  <div class="footer-text">© 2025 NEXUS STORE · FREE SHIPPING OVER $49</div>
+  <div class="footer-text">CLOTHES · GADGETS · SNEAKERS</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const data = {
+  clothes: [
+    { name: "Classic White Tee", desc: "100% organic cotton, relaxed fit", price: 18, emoji: "👕", tag: "new" },
+    { name: "Cargo Joggers", desc: "Multi-pocket utility style", price: 34, oldPrice: 45, emoji: "👖", tag: "sale" },
+    { name: "Oversized Hoodie", desc: "Heavyweight fleece, drop shoulder", price: 52, emoji: "🧥", tag: "hot" },
+    { name: "Linen Summer Shirt", desc: "Breathable, wrinkle-resistant", price: 28, emoji: "👔", tag: "new" },
+    { name: "Slim Chinos", desc: "Stretch cotton, modern cut", price: 40, oldPrice: 55, emoji: "🩳", tag: "sale" },
+    { name: "Puffer Jacket", desc: "Lightweight, water-resistant fill", price: 89, emoji: "🧥", tag: "limited" },
+    { name: "Floral Dress", desc: "Midi length, boho floral print", price: 44, emoji: "👗", tag: "new" },
+    { name: "Denim Jacket", desc: "Raw edge finish, vintage wash", price: 65, emoji: "🧢", tag: "hot" },
+    { name: "Ribbed Turtleneck", desc: "Merino wool blend, slim fit", price: 36, emoji: "👕", tag: "" },
+    { name: "Athleisure Set", desc: "Matching top + shorts, moisture-wicking", price: 58, oldPrice: 75, emoji: "🩱", tag: "sale" },
+    { name: "Trench Coat", desc: "Water-repellent, belted style", price: 95, emoji: "🧥", tag: "limited" },
+    { name: "Graphic Tee", desc: "Bold print, 100% cotton", price: 22, emoji: "👕", tag: "hot" },
+  ],
+  gadgets: [
+    { name: "Wireless Earbuds Pro", desc: "ANC, 30hr battery, IPX4 rated", price: 59, emoji: "🎧", tag: "hot" },
+    { name: "Smart Watch X2", desc: "Health tracking, 7-day battery", price: 89, oldPrice: 120, emoji: "⌚", tag: "sale" },
+    { name: "Portable Charger 20K", desc: "Fast charge, 3 ports, slim body", price: 32, emoji: "🔋", tag: "new" },
+    { name: "Bluetooth Speaker", desc: "360° sound, waterproof, 24hr", price: 45, emoji: "🔊", tag: "hot" },
+    { name: "Mini Projector", desc: "HD 1080p, WiFi & BT built-in", price: 115, emoji: "📽️", tag: "new" },
+    { name: "LED Desk Lamp", desc: "USB-C, dimmable, eye-care mode", price: 28, oldPrice: 38, emoji: "💡", tag: "sale" },
+    { name: "Webcam 4K", desc: "Auto-focus, built-in mic, ring light", price: 72, emoji: "📷", tag: "new" },
+    { name: "Mechanical Keyboard", desc: "TKL, RGB backlit, brown switches", price: 68, emoji: "⌨️", tag: "limited" },
+    { name: "USB-C Hub 7-in-1", desc: "HDMI 4K, PD 100W, SD card", price: 38, emoji: "🖥️", tag: "" },
+    { name: "Wireless Mouse", desc: "Silent clicks, ergonomic, 90-day", price: 26, oldPrice: 35, emoji: "🖱️", tag: "sale" },
+    { name: "Smart Plug 4-pack", desc: "Voice control, energy monitor", price: 36, emoji: "🔌", tag: "hot" },
+    { name: "Mini Drone", desc: "4K camera, foldable, 25min flight", price: 99, emoji: "🚁", tag: "limited" },
+  ],
+  sneakers: [
+    { name: "Air Boost Runner", desc: "Responsive foam, knit upper", price: 85, emoji: "👟", tag: "hot" },
+    { name: "Classic Low Top", desc: "Canvas, vulcanized sole, timeless", price: 45, oldPrice: 60, emoji: "👟", tag: "sale" },
+    { name: "Trail Hiker Pro", desc: "Waterproof, aggressive grip lug", price: 98, emoji: "🥾", tag: "new" },
+    { name: "Slip-On Loafer", desc: "Elastic gore, easy on/off", price: 38, emoji: "🩴", tag: "" },
+    { name: "Chunky Dad Shoe", desc: "Retro aesthetic, triple-stacked sole", price: 75, emoji: "👟", tag: "hot" },
+    { name: "Court Heritage", desc: "Leather upper, perforated detail", price: 62, oldPrice: 82, emoji: "👟", tag: "sale" },
+    { name: "High Top Basketball", desc: "Ankle support, non-slip court", price: 92, emoji: "👟", tag: "new" },
+    { name: "Zero Drop Barefoot", desc: "Flexible, wide toe box, natural feel", price: 88, emoji: "👟", tag: "limited" },
+    { name: "Carbon Fiber Racer", desc: "Marathon-grade plate, speed-focused", price: 125, emoji: "👟", tag: "limited" },
+    { name: "Foam Clog Lite", desc: "Lightweight, cushioned, all-day wear", price: 35, oldPrice: 48, emoji: "🥿", tag: "sale" },
+    { name: "Collab Edition X", desc: "Artist series, numbered release", price: 145, emoji: "👟", tag: "limited" },
+    { name: "Everyday Trainer", desc: "Versatile daily wear, cloud foam", price: 58, emoji: "👟", tag: "new" },
+  ]
+};
+
+let cartCount = 0;
+
+function buildCards(items, containerIds, category) {
+  const tagLabels = { new: "NEW", hot: "🔥 HOT", sale: "SALE", limited: "LIMITED", "": "" };
+  const tagClasses = { new: "tag-new", hot: "tag-hot", sale: "tag-sale", limited: "tag-limited", "": "" };
+
+  const html = items.map((item, i) => `
+    <div class="product-card" style="animation-delay:${i * 0.05 + 0.05}s">
+      <div class="product-img">
+        ${item.tag ? `<span class="product-tag ${tagClasses[item.tag]}">${tagLabels[item.tag]}</span>` : ""}
+        <span style="filter:drop-shadow(0 4px 16px rgba(255,255,255,0.15))">${item.emoji}</span>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${item.name}</div>
+        <div class="product-desc">${item.desc}</div>
+        <div class="product-footer">
+          <div>
+            <span class="product-price">$${item.price}</span>
+            ${item.oldPrice ? `<span class="product-old-price">$${item.oldPrice}</span>` : ""}
+          </div>
+          <button class="add-btn" onclick="addToCart(this, '${item.name}')">+ ADD</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  containerIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
+}
+
+function addToCart(btn, name) {
+  if (btn.classList.contains("added")) return;
+  cartCount++;
+  document.getElementById("cartCount").textContent = cartCount;
+  btn.textContent = "✓ ADDED";
+  btn.classList.add("added");
+  showToast(`${name} added to cart!`);
+  setTimeout(() => {
+    btn.textContent = "+ ADD";
+    btn.classList.remove("added");
+  }, 2000);
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+function showCart() {
+  showToast(`Cart has ${cartCount} item${cartCount !== 1 ? "s" : ""}`);
+}
+
+function showCategory(cat, btn) {
+  // Update nav buttons
+  document.querySelectorAll(".nav-links button").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  else {
+    const match = document.querySelector(`.nav-links button[data-cat="${cat}"]`);
+    if (match) { match.classList.add("active"); }
+  }
+
+  const allView = document.getElementById("allView");
+  const heroSection = document.getElementById("heroSection");
+  const clothesView = document.getElementById("clothesView");
+  const gadgetsView = document.getElementById("gadgetsView");
+  const sneakersView = document.getElementById("sneakersView");
+
+  if (cat === "all") {
+    allView.classList.remove("hidden");
+    heroSection.classList.remove("hidden");
+    clothesView.classList.remove("visible");
+    gadgetsView.classList.remove("visible");
+    sneakersView.classList.remove("visible");
+  } else {
+    allView.classList.add("hidden");
+    heroSection.classList.add("hidden");
+    clothesView.classList.remove("visible");
+    gadgetsView.classList.remove("visible");
+    sneakersView.classList.remove("visible");
+    document.getElementById(`${cat}View`).classList.add("visible");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+// Build all grids
+buildCards(data.clothes, ["clothesGridAll", "clothesGridSingle"], "clothes");
+buildCards(data.gadgets, ["gadgetsGridAll", "gadgetsGridSingle"], "gadgets");
+buildCards(data.sneakers, ["sneakersGridAll", "sneakersGridSingle"], "sneakers");
+</script>
+</body>
+</html>
